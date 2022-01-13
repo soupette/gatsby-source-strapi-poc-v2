@@ -12,5 +12,10 @@
     "gatsby-plugin"
   ],
   "author": "Kyle Gill <kyle.robert.gill@gmail.com>",
-  "license": "0BSD"
+  "license": "0BSD",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "dotenv": "^11.0.0",
+    "lodash": "^4.17.21"
+  }
 }

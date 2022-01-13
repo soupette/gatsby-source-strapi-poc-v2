@@ -2,5 +2,5 @@
 
 ```bash
 STRAPI_TOKEN=<my-token>
-STRAPI_API_URL=htpp:localhost:1337
+STRAPI_API_URL=http://localhost:1337/api
 ```
