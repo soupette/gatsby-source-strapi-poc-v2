@@ -37,11 +37,10 @@ yarn develop
 
 ```
 
-
 ## Credentials
 
 ```
 # admin user
-email: admin@strapi.io 
+email: admin@strapi.io
 password: Rootroot.1
 ```
