@@ -44,3 +44,17 @@ yarn develop
 email: admin@strapi.io
 password: Rootroot.1
 ```
+
+### Note
+
+- The `config.api.js` has been changed to
+
+```js
+module.exports = {
+  rest: {
+    defaultLimit: 25,
+    maxLimit: null,
+    withCount: true,
+  },
+};
+```

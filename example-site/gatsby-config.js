@@ -8,12 +8,33 @@ const strapiConfig = {
   collectionTypes: [
     {
       singularName: "article",
+      queryParams: {
+        pagination: {
+          limit: 25,
+        },
+        populate: "*",
+      },
+      /**
+       * Default queryParams value
+       * {
+       *    pagination: { limit: -1 },
+       *    populate: '*'
+       * }
+       */
     },
   ],
   singleTypes: [
-    // {
-    //   singularName: 'about',
-    // },
+    {
+      singularName: "about",
+      queryLimit: -1,
+
+      /**
+       * Default queryParams value
+       * {
+       *  populate: '*',
+       * }
+       * */
+    },
   ],
 }
 

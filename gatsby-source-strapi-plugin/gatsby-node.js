@@ -14,20 +14,39 @@
 const createInstance = require('./axiosInstance');
 const helpers = require('./helpers');
 const { capitalize, castArray } = require('lodash');
+const qs = require('qs');
 
-const getEntities = async ({ endpoint }, ctx) => {
-  const axiosInstance = createInstance(ctx.strapiConfig);
+const getEntities = async ({ endpoint, queryParams, uid }, ctx) => {
+  const { strapiConfig, reporter } = ctx;
+  const axiosInstance = createInstance(strapiConfig);
+
+  const opts = {
+    method: 'GET',
+    url: endpoint + '?' + qs.stringify(queryParams, { encodeValuesOnly: true }),
+  };
 
   try {
-    const { data } = await axiosInstance.get(endpoint);
+    reporter.info(`Starting to fetch data from Strapi - ${opts.url}`);
 
-    return castArray(data).map(helpers.cleanData);
-  } catch (err) {
-    console.log(err);
+    const { data } = await axiosInstance(opts);
+
+    console.log({ uid });
+
+    return castArray(data).map((entry) =>
+      helpers.cleanData(entry, { ...ctx, contentTypeUid: uid }),
+    );
+  } catch (error) {
+    reporter.panic(`Failed to fetch data from Strapi ${opts.url}`, error);
+    return [];
   }
 };
 
-exports.sourceNodes = async ({ actions, createContentDigest, createNodeId }, pluginOptions) => {
+exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');
+
+exports.sourceNodes = async (
+  { actions, createContentDigest, createNodeId, reporter },
+  pluginOptions,
+) => {
   const { createNode } = actions;
 
   const axiosInstance = createInstance(pluginOptions);
@@ -37,6 +56,8 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId }, plu
 
   const ctx = {
     strapiConfig: pluginOptions,
+    reporter,
+    contentTypesSchemas,
   };
 
   const endpoints = helpers.getEndpoints(pluginOptions, contentTypesSchemas);
@@ -65,5 +86,3 @@ exports.sourceNodes = async ({ actions, createContentDigest, createNodeId }, plu
 
   return;
 };
-
-exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');

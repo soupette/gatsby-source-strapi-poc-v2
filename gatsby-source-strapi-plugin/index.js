@@ -3,6 +3,8 @@
 require('dotenv').config({
   path: `.env`,
 });
+
+const createInstance = require('./axiosInstance');
 // noop
 const sourceNodes = require('./gatsby-node').sourceNodes;
 
@@ -21,8 +23,20 @@ const run = async () => {
       // },
     ],
   };
+  const axiosInstance = createInstance(strapiConfig);
 
-  await sourceNodes({ actions: {} }, strapiConfig);
+  for (let i = 0; i < 100; i++) {
+    const article = {
+      title: `Article ${i}`,
+      content: 'lorem ipsum',
+    };
+
+    axiosInstance.post('/articles', {
+      data: article,
+    });
+  }
+
+  // await sourceNodes({ actions: {} }, strapiConfig);
 };
 
 run();
