@@ -22,7 +22,7 @@ const HomePage = ({ data }) => (
           }}
         >
           <h2>{article.title}</h2>
-          <span>By: TODO</span>
+          <span>By: {article.author?.name || "-"}</span>
           <p>{article.content}</p>
           {/* <GatsbyImage
             image={post.localFile?.childImageSharp?.gatsbyImageData}
@@ -41,6 +41,9 @@ export const query = graphql`
         id
         title
         content
+        author {
+          name
+        }
       }
     }
   }

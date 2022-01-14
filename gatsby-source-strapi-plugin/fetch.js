@@ -10,14 +10,42 @@ const qs = require('qs');
  * @returns
  */
 const cleanAttributes = (attributes, currentSchema, allSchemas) => {
+  if (!attributes) {
+    return null;
+  }
+
   return Object.entries(attributes).reduce((acc, [name, value]) => {
     const attribute = currentSchema.schema.attributes[name];
 
     // createdAt and updatedAt are not returned by the api
-    if (attribute?.type !== 'relation') {
+    if (!['relation', 'media'].includes(attribute?.type)) {
       acc[name] = value;
 
       return acc;
+    }
+
+    if (attribute.type === 'media') {
+      if (Array.isArray(value?.data)) {
+        return {
+          ...acc,
+          [name]: value.data
+            ? value.data.map(({ id, attributes }) => ({
+                id,
+                ...attributes,
+              }))
+            : null,
+        };
+      }
+
+      return {
+        ...acc,
+        [name]: value.data
+          ? {
+              id: value.data.id,
+              ...value.data.attributes,
+            }
+          : null,
+      };
     }
 
     const relationSchema = allSchemas.find(({ uid }) => uid === attribute.target);
@@ -34,7 +62,7 @@ const cleanAttributes = (attributes, currentSchema, allSchemas) => {
     return {
       ...acc,
       [name]: cleanAttributes(
-        value.data ? { id: value.data.id, ...value.data.attributes } : {},
+        value.data ? { id: value.data.id, ...value.data.attributes } : null,
         relationSchema,
         allSchemas,
       ),
