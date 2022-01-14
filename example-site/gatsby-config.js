@@ -9,15 +9,12 @@ const strapiConfig = {
     {
       singularName: "article",
       queryParams: {
-        pagination: {
-          limit: 25,
-        },
         populate: "*",
       },
       /**
        * Default queryParams value
        * {
-       *    pagination: { limit: -1 },
+       *    pagination: { page: 1, pageSize: 250 },
        *    populate: '*'
        * }
        */
@@ -26,7 +23,6 @@ const strapiConfig = {
   singleTypes: [
     {
       singularName: "about",
-      queryLimit: -1,
 
       /**
        * Default queryParams value

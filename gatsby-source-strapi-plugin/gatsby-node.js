@@ -11,35 +11,10 @@
  *
  * See: https://www.gatsbyjs.com/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
-const createInstance = require('./axiosInstance');
-const helpers = require('./helpers');
 const { capitalize, castArray } = require('lodash');
-const qs = require('qs');
-
-const getEntities = async ({ endpoint, queryParams, uid }, ctx) => {
-  const { strapiConfig, reporter } = ctx;
-  const axiosInstance = createInstance(strapiConfig);
-
-  const opts = {
-    method: 'GET',
-    url: endpoint + '?' + qs.stringify(queryParams, { encodeValuesOnly: true }),
-  };
-
-  try {
-    reporter.info(`Starting to fetch data from Strapi - ${opts.url}`);
-
-    const { data } = await axiosInstance(opts);
-
-    console.log({ uid });
-
-    return castArray(data).map((entry) =>
-      helpers.cleanData(entry, { ...ctx, contentTypeUid: uid }),
-    );
-  } catch (error) {
-    reporter.panic(`Failed to fetch data from Strapi ${opts.url}`, error);
-    return [];
-  }
-};
+const createInstance = require('./axiosInstance');
+const { fetchEntities, fetchEntity } = require('./fetch');
+const helpers = require('./helpers');
 
 exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');
 
@@ -50,9 +25,9 @@ exports.sourceNodes = async (
   const { createNode } = actions;
 
   const axiosInstance = createInstance(pluginOptions);
-  const { data: contentTypesSchemas } = await axiosInstance.get(
-    '/content-type-builder/content-types',
-  );
+  const {
+    data: { data: contentTypesSchemas },
+  } = await axiosInstance.get('/content-type-builder/content-types');
 
   const ctx = {
     strapiConfig: pluginOptions,
@@ -62,7 +37,15 @@ exports.sourceNodes = async (
 
   const endpoints = helpers.getEndpoints(pluginOptions, contentTypesSchemas);
 
-  const data = await Promise.all(endpoints.map((endpoint) => getEntities(endpoint, ctx)));
+  const data = await Promise.all(
+    endpoints.map(({ kind, ...config }) => {
+      if (kind === 'singleType') {
+        return fetchEntity(config, ctx);
+      }
+
+      return fetchEntities(config, ctx);
+    }),
+  );
 
   endpoints.forEach(({ singularName }, i) => {
     const entities = data[i];

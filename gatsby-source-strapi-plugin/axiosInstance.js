@@ -12,8 +12,6 @@ const createInstance = (config) => {
     headers,
   });
 
-  instance.interceptors.response.use((response) => response.data);
-
   return instance;
 };
 
