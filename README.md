@@ -19,6 +19,8 @@ cd api && yarn
 yarn develop
 ```
 
+Go to the admin panel and create an API_TOKEN with full access
+
 2. Install the source plugin dependencies
 
 ```bash
@@ -28,33 +30,19 @@ yarn
 
 3. Run the example app
 
+> UPDATE the .env file with the correct API_TOKEN
+> The file is committed
+
+Path: `example-site/.env`
+
+```bash
+STRAPI_TOKEN=<my-token>
+STRAPI_API_URL=http://localhost:1337
+```
+
 ```bash
 cd example-site
 yarn
 yarn develop
 
-```
-
-## Credentials
-
-Create an API_TOKEN and add it to the example-site .env file
-
-> Make sure to create a full access token
-
-```
-STRAPI_TOKEN=<my-token>
-```
-
-### Note
-
-- The `config.api.js` has been changed to
-
-```js
-module.exports = {
-  rest: {
-    defaultLimit: 25,
-    maxLimit: null,
-    withCount: true,
-  },
-};
 ```
