@@ -1,7 +1,7 @@
 const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
+const { getContentTypeSchema } = require('./helpers');
 
 // utils
-const isImage = (field) => field.hasOwnProperty('mime');
 const isImageOrImages = (field) => {
   if (Array.isArray(field)) {
     return field.some((f) => isImage(f));
@@ -10,34 +10,48 @@ const isImageOrImages = (field) => {
   return isImage(field);
 };
 
-const extractFields = async (item, ctx) => {
+const mimeTypeExtensions = new Map([
+  [`image/jpeg`, `.jpg`],
+  [`image/jpg`, `.jpg`],
+  [`image/gif`, `.gif`],
+  [`image/png`, `.png`],
+  [`image/webp`, `.webp`],
+  [`image/avif`, `.avif`],
+]);
+
+const isImage = (field) => mimeTypeExtensions.has(field.mime);
+
+const extractFields = async (item, ctx, uid) => {
   const {
     actions: { createNode },
     cache,
+    contentTypesSchemas,
     createNodeId,
     store,
     strapiConfig: { apiURL },
   } = ctx;
-  for (const key of Object.keys(item)) {
-    const field = item[key];
 
-    if (Array.isArray(field) && !isImageOrImages(field)) {
-      // add recursion to fetch nested strapi references
-      await Promise.all(field.map(async (f) => extractFields(f, ctx)));
-    }
+  const schema = getContentTypeSchema(contentTypesSchemas, uid);
 
-    // image fields have a mime property among other
-    // maybe should find a better test
-    if (field !== null && isImageOrImages(field)) {
-      const images = await Promise.all(
-        (Array.isArray(field) ? field : [field]).map(async (_field) => {
+  for (const attributeName of Object.keys(item)) {
+    const value = item[attributeName];
+
+    const attribute = schema.schema.attributes[attributeName];
+
+    if (attribute?.type === 'media' && value) {
+      const isMulitple = attribute.multiple;
+      const imagesField = isMulitple ? value : [value];
+      // const images = imagesField.filter(isImage);
+      // Dowload all files
+      const files = await Promise.all(
+        imagesField.map(async (file) => {
           let fileNodeID;
 
           // For now always download the file
           if (!fileNodeID) {
             try {
               // full media url
-              const source_url = `${_field.url.startsWith('http') ? '' : apiURL}${_field.url}`;
+              const source_url = `${file.url.startsWith('http') ? '' : apiURL}${file.url}`;
               const fileNode = await createRemoteFileNode({
                 url: source_url,
                 store,
@@ -59,15 +73,15 @@ const extractFields = async (item, ctx) => {
         }),
       );
 
+      const images = files.filter((fileNodeID) => fileNodeID);
+
       if (images && images.length > 0) {
         // Here 2 nodes will be resolved by the same GQL field
-        item[`${key}___NODE`] = Array.isArray(field) ? images : images[0];
+        item[`${attributeName}___NODE`] = isMulitple ? images : images[0];
 
         // Delete the other one
-        delete item[key];
+        delete item[attributeName];
       }
-    } else if (field !== null && typeof field === 'object') {
-      extractFields(field, ctx);
     }
   }
 };
