@@ -63,8 +63,8 @@ exports.extractNodes = (entity, nodeType, ctx, uid) => {
           type: _.camelCase(`${nodeType}-${attributeName}-TextNode`),
           mediaType: `text/markdown`,
           content: value,
-          // entryItem.sys.updatedAt is source of truth from contentful
-          contentDigest: createContentDigest(value),
+
+          contentDigest: entity.updatedAt,
         },
       };
 
