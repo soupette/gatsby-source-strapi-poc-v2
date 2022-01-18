@@ -21,7 +21,7 @@ const mimeTypeExtensions = new Map([
 
 const isImage = (field) => mimeTypeExtensions.has(field.mime);
 
-exports.extractNodes = (entity, nodeType, ctx, uid) => {
+exports.createNodes = (entity, nodeType, ctx, uid) => {
   const nodes = [];
 
   const {
