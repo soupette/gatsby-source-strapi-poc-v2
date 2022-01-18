@@ -25,7 +25,6 @@ const HomePage = ({ data }) => (
           <GatsbyImage
             image={article.image?.childImageSharp?.gatsbyImageData}
             alt={article?.image?.alternativeText}
-            // alt={post.imgAlt}
           />
           <span>By: {article.author?.name || "-"}</span>
           <div
@@ -55,7 +54,7 @@ export const query = graphql`
         }
         image {
           childImageSharp {
-            gatsbyImageData
+            gatsbyImageData(formats: [AUTO, WEBP, AVIF])
           }
         }
       }
