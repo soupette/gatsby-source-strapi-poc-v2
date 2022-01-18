@@ -1,6 +1,6 @@
 const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const { getContentTypeSchema } = require('./helpers');
-
+const _ = require('lodash');
 // utils
 const isImageOrImages = (field) => {
   if (Array.isArray(field)) {
@@ -21,7 +21,74 @@ const mimeTypeExtensions = new Map([
 
 const isImage = (field) => mimeTypeExtensions.has(field.mime);
 
-const extractFields = async (item, ctx, uid) => {
+exports.extractNodes = (entity, nodeType, ctx, uid) => {
+  const nodes = [];
+
+  const {
+    actions: { createNode },
+    cache,
+    contentTypesSchemas,
+    createNodeId,
+    createContentDigest,
+    store,
+    strapiConfig: { apiURL },
+  } = ctx;
+
+  let entryNode = {
+    id: createNodeId(`${nodeType}-${entity.id}`),
+    parent: null,
+    children: [],
+    internal: {
+      type: nodeType,
+      content: JSON.stringify(entity),
+      contentDigest: createContentDigest(entity),
+    },
+  };
+
+  const schema = getContentTypeSchema(contentTypesSchemas, uid);
+
+  for (const attributeName of Object.keys(entity)) {
+    const value = entity[attributeName];
+
+    const attribute = schema.schema.attributes[attributeName];
+
+    if (attribute?.type === 'richtext' && value) {
+      const textNodeId = createNodeId(`${entity.id}${attributeName}TextNode`);
+      const textNode = {
+        id: textNodeId,
+        parent: entryNode.id,
+        children: [],
+        [attributeName]: value,
+        internal: {
+          type: _.camelCase(`${nodeType}-${attributeName}-TextNode`),
+          mediaType: `text/markdown`,
+          content: value,
+          // entryItem.sys.updatedAt is source of truth from contentful
+          contentDigest: createContentDigest(value),
+        },
+      };
+
+      entryNode.children = entryNode.children.concat([textNodeId]);
+
+      entity[`${attributeName}___NODE`] = textNodeId;
+      delete entity[attributeName];
+
+      nodes.push(createNode(textNode));
+    }
+  }
+
+  entryNode = {
+    ...entity,
+    ...entryNode,
+  };
+
+  nodes.push(createNode(entryNode));
+
+  return nodes;
+};
+
+// TODO components and DZ
+const extractImages = async (item, ctx, uid) => {
   const {
     actions: { createNode },
     cache,
@@ -90,7 +157,7 @@ const extractFields = async (item, ctx, uid) => {
 exports.downloadMediaFiles = async (entities, ctx, contentTypeUid) =>
   Promise.all(
     entities.map(async (entity) => {
-      await extractFields(entity, ctx, contentTypeUid);
+      await extractImages(entity, ctx, contentTypeUid);
 
       return entity;
     }),

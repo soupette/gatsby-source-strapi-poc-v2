@@ -1,6 +1,6 @@
 import React from "react"
 import { graphql } from "gatsby"
-// import { GatsbyImage } from "gatsby-plugin-image"
+import { GatsbyImage } from "gatsby-plugin-image"
 
 const HomePage = ({ data }) => (
   <>
@@ -22,12 +22,17 @@ const HomePage = ({ data }) => (
           }}
         >
           <h2>{article.title}</h2>
+          <GatsbyImage
+            image={article.image?.childImageSharp?.gatsbyImageData}
+            alt={article?.image?.alternativeText}
+            // alt={post.imgAlt}
+          />
           <span>By: {article.author?.name || "-"}</span>
-          <p>{article.content}</p>
-          {/* <GatsbyImage
-            image={post.localFile?.childImageSharp?.gatsbyImageData}
-            alt={post.imgAlt}
-          /> */}
+          <div
+            dangerouslySetInnerHTML={{
+              __html: article.content?.childMarkdownRemark?.html || "",
+            }}
+          />
         </div>
       ))}
     </section>
@@ -40,9 +45,18 @@ export const query = graphql`
       nodes {
         id
         title
-        content
+        content {
+          childMarkdownRemark {
+            html
+          }
+        }
         author {
           name
+        }
+        image {
+          childImageSharp {
+            gatsbyImageData
+          }
         }
       }
     }

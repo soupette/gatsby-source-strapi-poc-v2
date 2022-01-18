@@ -12,11 +12,10 @@
  * See: https://www.gatsbyjs.com/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
 const { capitalize } = require('lodash');
-const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const createInstance = require('./axiosInstance');
 const { fetchEntities, fetchEntity } = require('./fetch');
 const helpers = require('./helpers');
-const { downloadMediaFiles } = require('./normalize');
+const { downloadMediaFiles, extractNodes } = require('./normalize');
 
 const fetchStrapiContentTypes = async (pluginOptions) => {
   const axiosInstance = createInstance(pluginOptions);
@@ -64,22 +63,24 @@ exports.sourceNodes = async (
   for (let i = 0; i < endpoints.length; i++) {
     const { singularName, uid } = endpoints[i];
 
-    const entities = await downloadMediaFiles(data[i], ctx, uid);
+    // const entities = await downloadMediaFiles(data[i], ctx, uid);
+    await downloadMediaFiles(data[i], ctx, uid);
 
     const nodeType = `Strapi${capitalize(singularName)}`;
 
-    for (let entity of entities) {
-      createNode({
-        ...entity,
-        id: createNodeId(`${nodeType}-${entity.id}`),
-        parent: null,
-        children: [],
-        internal: {
-          type: nodeType,
-          content: JSON.stringify(entity),
-          contentDigest: createContentDigest(entity),
-        },
-      });
+    for (let entity of data[i]) {
+      await Promise.all(extractNodes(entity, nodeType, ctx, uid));
+      // createNode({
+      //   ...entity,
+      //   id: createNodeId(`${nodeType}-${entity.id}`),
+      //   parent: null,
+      //   children: [],
+      //   internal: {
+      //     type: nodeType,
+      //     content: JSON.stringify(entity),
+      //     contentDigest: createContentDigest(entity),
+      //   },
+      // });
     }
   }
 
