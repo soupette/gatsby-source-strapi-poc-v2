@@ -81,6 +81,15 @@ const cleanData = ({ id, attributes }, ctx) => {
   };
 };
 
+const fetchStrapiContentTypes = async (pluginOptions) => {
+  const axiosInstance = createInstance(pluginOptions);
+  const {
+    data: { data },
+  } = await axiosInstance.get('/api/content-type-builder/content-types');
+
+  return data;
+};
+
 const fetchEntity = async ({ endpoint, queryParams, uid }, ctx) => {
   const { strapiConfig, reporter } = ctx;
   const axiosInstance = createInstance(strapiConfig);
@@ -99,10 +108,10 @@ const fetchEntity = async ({ endpoint, queryParams, uid }, ctx) => {
 
     return castArray(data.data).map((entry) => cleanData(entry, { ...ctx, contentTypeUid: uid }));
   } catch (error) {
-    reporter.panic(
-      `Failed to fetch data from Strapi ${opts.url} with ${JSON.stringify(opts)}`,
-      error,
-    );
+    // reporter.panic(
+    //   `Failed to fetch data from Strapi ${opts.url} with ${JSON.stringify(opts)}`,
+    //   error,
+    // );
     return [];
   }
 };
@@ -174,4 +183,4 @@ const fetchEntities = async ({ endpoint, queryParams, uid }, ctx) => {
   }
 };
 
-module.exports = { fetchEntity, fetchEntities };
+module.exports = { fetchStrapiContentTypes, fetchEntity, fetchEntities };

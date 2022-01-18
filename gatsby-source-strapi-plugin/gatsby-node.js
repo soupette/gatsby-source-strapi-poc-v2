@@ -12,19 +12,9 @@
  * See: https://www.gatsbyjs.com/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
 const { capitalize } = require('lodash');
-const createInstance = require('./axiosInstance');
-const { fetchEntities, fetchEntity } = require('./fetch');
+const { fetchStrapiContentTypes, fetchEntities, fetchEntity } = require('./fetch');
 const helpers = require('./helpers');
 const { downloadMediaFiles, createNodes } = require('./normalize');
-
-const fetchStrapiContentTypes = async (pluginOptions) => {
-  const axiosInstance = createInstance(pluginOptions);
-  const {
-    data: { data },
-  } = await axiosInstance.get('/api/content-type-builder/content-types');
-
-  return data;
-};
 
 exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');
 
