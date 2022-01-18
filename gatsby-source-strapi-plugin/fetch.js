@@ -1,6 +1,7 @@
 const { castArray, flattenDeep } = require('lodash');
 const createInstance = require('./axiosInstance');
 const qs = require('qs');
+const { getContentTypeSchema } = require('./helpers');
 
 /**
  * Removes the attribute key in the entire data.
@@ -48,7 +49,7 @@ const cleanAttributes = (attributes, currentSchema, allSchemas) => {
       };
     }
 
-    const relationSchema = allSchemas.find(({ uid }) => uid === attribute.target);
+    const relationSchema = getContentTypeSchema(allSchemas, attribute.target);
 
     if (Array.isArray(value?.data)) {
       return {
@@ -72,7 +73,7 @@ const cleanAttributes = (attributes, currentSchema, allSchemas) => {
 
 const cleanData = ({ id, attributes }, ctx) => {
   const { contentTypesSchemas, contentTypeUid } = ctx;
-  const currentContentTypeSchema = contentTypesSchemas.find(({ uid }) => uid === contentTypeUid);
+  const currentContentTypeSchema = getContentTypeSchema(contentTypesSchemas, contentTypeUid);
 
   return {
     id,
@@ -162,9 +163,11 @@ const fetchEntities = async ({ endpoint, queryParams, uid }, ctx) => {
 
     const results = await Promise.all(arrayOfPromises);
 
-    return [...data, ...flattenDeep(results)].map((entry) =>
+    const cleanedData = [...data, ...flattenDeep(results)].map((entry) =>
       cleanData(entry, { ...ctx, contentTypeUid: uid }),
     );
+
+    return cleanedData;
   } catch (error) {
     reporter.panic(`Failed to fetch data from Strapi ${opts.url}`, error);
     return [];

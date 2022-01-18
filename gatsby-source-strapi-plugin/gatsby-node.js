@@ -11,28 +11,42 @@
  *
  * See: https://www.gatsbyjs.com/docs/creating-a-local-plugin/#developing-a-local-plugin-that-is-outside-your-project
  */
-const { capitalize, castArray } = require('lodash');
+const { capitalize } = require('lodash');
+const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const createInstance = require('./axiosInstance');
 const { fetchEntities, fetchEntity } = require('./fetch');
 const helpers = require('./helpers');
+const { downloadMediaFiles } = require('./normalize');
+
+const fetchStrapiContentTypes = async (pluginOptions) => {
+  const axiosInstance = createInstance(pluginOptions);
+  const {
+    data: { data },
+  } = await axiosInstance.get('/api/content-type-builder/content-types');
+
+  return data;
+};
 
 exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');
 
 exports.sourceNodes = async (
-  { actions, createContentDigest, createNodeId, reporter },
+  { actions, createContentDigest, createNodeId, reporter, getCache, store, cache },
   pluginOptions,
 ) => {
   const { createNode } = actions;
 
-  const axiosInstance = createInstance(pluginOptions);
-  const {
-    data: { data: contentTypesSchemas },
-  } = await axiosInstance.get('/content-type-builder/content-types');
+  const contentTypesSchemas = await fetchStrapiContentTypes(pluginOptions);
 
   const ctx = {
     strapiConfig: pluginOptions,
-    reporter,
+    actions,
     contentTypesSchemas,
+    createContentDigest,
+    createNodeId,
+    reporter,
+    getCache,
+    store,
+    cache,
   };
 
   const endpoints = helpers.getEndpoints(pluginOptions, contentTypesSchemas);
@@ -47,12 +61,14 @@ exports.sourceNodes = async (
     }),
   );
 
-  endpoints.forEach(({ singularName }, i) => {
-    const entities = data[i];
+  for (let i = 0; i < endpoints.length; i++) {
+    const { singularName, uid } = endpoints[i];
 
-    entities.forEach((entity) => {
-      const nodeType = `Strapi${capitalize(singularName)}`;
+    const entities = await downloadMediaFiles(data[i], ctx, uid);
 
+    const nodeType = `Strapi${capitalize(singularName)}`;
+
+    for (let entity of entities) {
       createNode({
         ...entity,
         id: createNodeId(`${nodeType}-${entity.id}`),
@@ -64,8 +80,8 @@ exports.sourceNodes = async (
           contentDigest: createContentDigest(entity),
         },
       });
-    });
-  });
+    }
+  }
 
   return;
 };

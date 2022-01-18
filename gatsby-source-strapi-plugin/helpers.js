@@ -1,3 +1,9 @@
+const getContentTypeSchema = (allSchemas, ctUID) => {
+  const currentContentTypeSchema = allSchemas.find(({ uid }) => uid === ctUID);
+
+  return currentContentTypeSchema;
+};
+
 const getEndpoints = ({ collectionTypes, singleTypes }, schemas) => {
   const types = [...(collectionTypes || []), ...(singleTypes || [])];
 
@@ -15,7 +21,7 @@ const getEndpoints = ({ collectionTypes, singleTypes }, schemas) => {
           singularName,
           kind,
           uid,
-          endpoint: `/${singularName}`,
+          endpoint: `/api/${singularName}`,
           queryParams: queryParams || {
             populate: '*',
           },
@@ -27,7 +33,7 @@ const getEndpoints = ({ collectionTypes, singleTypes }, schemas) => {
         pluralName,
         kind,
         uid,
-        endpoint: `/${pluralName}`,
+        endpoint: `/api/${pluralName}`,
         queryParams: {
           ...(queryParams || {}),
           pagination: {
@@ -42,4 +48,4 @@ const getEndpoints = ({ collectionTypes, singleTypes }, schemas) => {
   return endpoints;
 };
 
-module.exports = { getEndpoints };
+module.exports = { getEndpoints, getContentTypeSchema };
