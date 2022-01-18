@@ -28,21 +28,21 @@ yarn
 
 3. Run the example app
 
-``bash
+```bash
 cd example-site
 yarn
 yarn develop
 
 ```
 
-```
-
 ## Credentials
 
+Create an API_TOKEN and add it to the example-site .env file
+
+> Make sure to create a full access token
+
 ```
-# admin user
-email: admin@strapi.io
-password: Rootroot.1
+STRAPI_TOKEN=<my-token>
 ```
 
 ### Note

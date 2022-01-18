@@ -1,25 +1,6 @@
 const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const { getContentTypeSchema } = require('./helpers');
 const _ = require('lodash');
-// utils
-const isImageOrImages = (field) => {
-  if (Array.isArray(field)) {
-    return field.some((f) => isImage(f));
-  }
-
-  return isImage(field);
-};
-
-const mimeTypeExtensions = new Map([
-  [`image/jpeg`, `.jpg`],
-  [`image/jpg`, `.jpg`],
-  [`image/gif`, `.gif`],
-  [`image/png`, `.png`],
-  [`image/webp`, `.webp`],
-  [`image/avif`, `.avif`],
-]);
-
-const isImage = (field) => mimeTypeExtensions.has(field.mime);
 
 exports.createNodes = (entity, nodeType, ctx, uid) => {
   const nodes = [];
@@ -108,7 +89,7 @@ const extractImages = async (item, ctx, uid) => {
     if (attribute?.type === 'media' && value) {
       const isMulitple = attribute.multiple;
       const imagesField = isMulitple ? value : [value];
-      // const images = imagesField.filter(isImage);
+
       // Dowload all files
       const files = await Promise.all(
         imagesField.map(async (file) => {
