@@ -91,8 +91,8 @@ const extractImages = async (item, ctx, uid) => {
     }
 
     if (attribute?.type === 'media' && value) {
-      const isMulitple = attribute.multiple;
-      const imagesField = isMulitple ? value : [value];
+      const isMultiple = attribute.multiple;
+      const imagesField = isMultiple ? value : [value];
 
       // Dowload all files
       const files = await Promise.all(
@@ -128,11 +128,13 @@ const extractImages = async (item, ctx, uid) => {
       const images = files.filter((fileNodeID) => fileNodeID);
 
       if (images && images.length > 0) {
+        // item[attributeName] = isMultiple ? images : images[0];
         // Here 2 nodes will be resolved by the same GQL field
-        item[`${attributeName}___NODE`] = isMulitple ? images : images[0];
+        // item[`${attributeName}___NODE`] = isMultiple ? images : images[0];
 
+        item[attributeName][`localFile___NODE`] = isMultiple ? images : images[0];
         // Delete the other one
-        delete item[attributeName];
+        // delete item[attributeName];
       }
     }
   }

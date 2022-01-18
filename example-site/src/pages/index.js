@@ -14,6 +14,7 @@ const HomePage = ({ data }) => (
     >
       {data.allStrapiArticle.nodes.map(article => (
         <div
+          key={article.id}
           style={{
             display: `flex`,
             flexDirection: `column`,
@@ -23,14 +24,17 @@ const HomePage = ({ data }) => (
         >
           <h2>{article.title}</h2>
           <GatsbyImage
-            image={article.image?.childImageSharp?.gatsbyImageData}
+            image={article.image?.localFile?.childImageSharp?.gatsbyImageData}
             alt={article?.image?.alternativeText}
           />
           <div>
             <div>
               <span>By: {article.author?.name || "-"}</span>
               <GatsbyImage
-                image={article.author?.avatar?.childImageSharp?.gatsbyImageData}
+                image={
+                  article.author?.avatar?.localFile.childImageSharp
+                    ?.gatsbyImageData
+                }
                 alt="author"
               />
             </div>
@@ -42,7 +46,7 @@ const HomePage = ({ data }) => (
 
               <GatsbyImage
                 image={
-                  article.author?.company?.image?.childImageSharp
+                  article.author?.company?.image?.localFile?.childImageSharp
                     ?.gatsbyImageData
                 }
                 alt="company-picture"
@@ -74,22 +78,31 @@ export const query = graphql`
         author {
           name
           avatar {
-            childImageSharp {
-              gatsbyImageData(width: 30, height: 30)
-            }
-          }
-          company {
-            name
-            image {
+            alternativeText
+            localFile {
               childImageSharp {
                 gatsbyImageData(width: 30, height: 30)
               }
             }
           }
+          company {
+            name
+            image {
+              alternativeText
+              localFile {
+                childImageSharp {
+                  gatsbyImageData(width: 30, height: 30)
+                }
+              }
+            }
+          }
         }
         image {
-          childImageSharp {
-            gatsbyImageData(formats: [AUTO, WEBP, AVIF])
+          alternativeText
+          localFile {
+            childImageSharp {
+              gatsbyImageData(formats: [AUTO, WEBP, AVIF])
+            }
           }
         }
       }
