@@ -26,6 +26,15 @@
       "relation": "oneToMany",
       "target": "api::article.article",
       "mappedBy": "author"
+    },
+    "avatar": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

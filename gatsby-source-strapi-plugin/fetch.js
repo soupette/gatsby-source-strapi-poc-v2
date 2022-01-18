@@ -1,7 +1,26 @@
-const { castArray, flattenDeep } = require('lodash');
+const { castArray, flattenDeep, pick } = require('lodash');
 const createInstance = require('./axiosInstance');
 const qs = require('qs');
 const { getContentTypeSchema } = require('./helpers');
+
+const MEDIA_FIELDS = [
+  'name',
+  'alternativeText',
+  'caption',
+  'width',
+  'height',
+  'formats',
+  'hash',
+  'ext',
+  'mime',
+  'size',
+  'url',
+  'previewUrl',
+  'provider',
+  'provider_metadata',
+  'createdAt',
+  'updatedAt',
+];
 
 /**
  * Removes the attribute key in the entire data.
@@ -32,7 +51,7 @@ const cleanAttributes = (attributes, currentSchema, allSchemas) => {
           [name]: value.data
             ? value.data.map(({ id, attributes }) => ({
                 id,
-                ...attributes,
+                ...pick(attributes, MEDIA_FIELDS),
               }))
             : null,
         };
@@ -43,7 +62,7 @@ const cleanAttributes = (attributes, currentSchema, allSchemas) => {
         [name]: value.data
           ? {
               id: value.data.id,
-              ...value.data.attributes,
+              ...pick(value.data.attributes, MEDIA_FIELDS),
             }
           : null,
       };
@@ -129,9 +148,7 @@ const fetchEntities = async ({ endpoint, queryParams, uid }, ctx) => {
 
   try {
     reporter.info(
-      `Starting to fetch data from Strapi - ${opts.url} with ${JSON.stringify(
-        opts.paramsSerializer(opts.params),
-      )}`,
+      `Starting to fetch data from Strapi - ${opts.url} with ${JSON.stringify(opts.params)}`,
     );
 
     const {

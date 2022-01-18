@@ -20,6 +20,15 @@
       "relation": "oneToMany",
       "target": "api::author.author",
       "mappedBy": "company"
+    },
+    "image": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

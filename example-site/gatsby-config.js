@@ -9,7 +9,32 @@ const strapiConfig = {
     {
       singularName: "article",
       queryParams: {
-        populate: "*",
+        // IMO we should make sure we always query the updatedAt field
+        fields: ["title", "content", "updatedAt"],
+        populate: {
+          image: {
+            populate: "*",
+          },
+          images: {
+            populate: "*",
+          },
+          author: {
+            fields: ["name", "updatedAt"],
+            populate: {
+              avatar: {
+                populate: "*",
+              },
+              company: {
+                fields: ["name"],
+                populate: {
+                  image: {
+                    populate: "*",
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       /**
        * Default queryParams value
@@ -21,16 +46,15 @@ const strapiConfig = {
     },
   ],
   singleTypes: [
-    {
-      singularName: "about",
-
-      /**
-       * Default queryParams value
-       * {
-       *  populate: '*',
-       * }
-       * */
-    },
+    // {
+    //   singularName: "about",
+    //   /**
+    //    * Default queryParams value
+    //    * {
+    //    *  populate: '*',
+    //    * }
+    //    * */
+    // },
   ],
 }
 

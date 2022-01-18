@@ -26,7 +26,29 @@ const HomePage = ({ data }) => (
             image={article.image?.childImageSharp?.gatsbyImageData}
             alt={article?.image?.alternativeText}
           />
-          <span>By: {article.author?.name || "-"}</span>
+          <div>
+            <div>
+              <span>By: {article.author?.name || "-"}</span>
+              <GatsbyImage
+                image={article.author?.avatar?.childImageSharp?.gatsbyImageData}
+                alt="author"
+              />
+            </div>
+            <div>
+              <span>
+                working in: {article.author?.company.name} with optimized
+                picture
+              </span>
+
+              <GatsbyImage
+                image={
+                  article.author?.company?.image?.childImageSharp
+                    ?.gatsbyImageData
+                }
+                alt="company-picture"
+              />
+            </div>
+          </div>
           <div
             dangerouslySetInnerHTML={{
               __html: article.content?.childMarkdownRemark?.html || "",
@@ -51,6 +73,19 @@ export const query = graphql`
         }
         author {
           name
+          avatar {
+            childImageSharp {
+              gatsbyImageData(width: 30, height: 30)
+            }
+          }
+          company {
+            name
+            image {
+              childImageSharp {
+                gatsbyImageData(width: 30, height: 30)
+              }
+            }
+          }
         }
         image {
           childImageSharp {

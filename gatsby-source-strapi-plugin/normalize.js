@@ -86,6 +86,10 @@ const extractImages = async (item, ctx, uid) => {
 
     const attribute = schema.schema.attributes[attributeName];
 
+    if (attribute?.type === 'relation' && value) {
+      return extractImages(value, ctx, attribute.target);
+    }
+
     if (attribute?.type === 'media' && value) {
       const isMulitple = attribute.multiple;
       const imagesField = isMulitple ? value : [value];
