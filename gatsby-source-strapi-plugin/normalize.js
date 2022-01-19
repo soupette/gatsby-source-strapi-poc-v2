@@ -56,6 +56,30 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
 
       nodes.push(createNode(textNode));
     }
+
+    if (attribute?.type === 'json' && value) {
+      const jsonNodeId = createNodeId(`${entity.id}${attributeName}JSONNode`);
+
+      const JSONNode = {
+        ...(_.isPlainObject(value) ? { ...value } : { content: value }),
+        id: jsonNodeId,
+        parent: entryNode.id,
+        children: [],
+        internal: {
+          type: _.camelCase(`${nodeType}-${attributeName}-JSONNode`),
+          mediaType: `application/json`,
+          content: JSON.stringify(value),
+          contentDigest: entity.updatedAt,
+        },
+      };
+
+      entryNode.children = entryNode.children.concat([jsonNodeId]);
+
+      entity[`${attributeName}___NODE`] = jsonNodeId;
+      delete entity[attributeName];
+
+      nodes.push(createNode(JSONNode));
+    }
   }
 
   entryNode = {

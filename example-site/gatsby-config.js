@@ -10,7 +10,7 @@ const strapiConfig = {
       singularName: "article",
       queryParams: {
         // IMO we should make sure we always query the updatedAt field
-        fields: ["title", "content", "updatedAt"],
+        fields: ["title", "content", "updatedAt", "json"],
         populate: {
           image: {
             populate: "*",
@@ -61,6 +61,7 @@ const strapiConfig = {
 module.exports = {
   /* Your site config here */
   plugins: [
+    `gatsby-transformer-json`,
     "gatsby-transformer-remark",
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
