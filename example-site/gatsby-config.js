@@ -11,21 +11,21 @@ const strapiConfig = {
       queryParams: {
         // Populate media and relations
         // Make sure to not specify the fields key so the api always returns the updatedAt
-        // populate: "*",
-        populate: {
-          image: "*",
-          images: "*",
-          author: {
-            populate: {
-              avatar: "*",
-              company: {
-                populate: {
-                  image: "*",
-                },
-              },
-            },
-          },
-        },
+        populate: "*",
+        // populate: {
+        //   image: "*",
+        //   images: "*",
+        //   author: {
+        //     populate: {
+        //       avatar: "*",
+        //       company: {
+        //         populate: {
+        //           image: "*",
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
       },
       /**
        * Default queryParams value
@@ -35,23 +35,23 @@ const strapiConfig = {
        * }
        */
     },
-    // {
-    //   singularName: "company",
-    //   queryParams: {
-    //     populate: "*",
-    //   },
-    // },
-    // {
-    //   singularName: "author",
-    //   queryParams: {
-    //     populate: "*",
-    //     // populate: {
-    //     //   articles: {
-    //     //     populate: "*",
-    //     //   },
-    //     // },
-    //   },
-    // },
+    {
+      singularName: "company",
+      queryParams: {
+        populate: "*",
+      },
+    },
+    {
+      singularName: "author",
+      queryParams: {
+        populate: "*",
+        // populate: {
+        //   articles: {
+        //     populate: "*",
+        //   },
+        // },
+      },
+    },
   ],
   singleTypes: [
     // {

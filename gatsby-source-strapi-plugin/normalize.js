@@ -2,15 +2,29 @@ const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const { getContentTypeSchema } = require('./helpers');
 const _ = require('lodash');
 
+const prepareJSONNode = (json, ctx) => {
+  const { createNodeId, parentNode, attributeName } = ctx;
+
+  const jsonNodeId = createNodeId(`${parentNode.strapi_id}-${attributeName}-JSONNode`);
+
+  const JSONNode = {
+    ...(_.isPlainObject(json) ? { ...json } : { strapi_json_value: json }),
+    id: jsonNodeId,
+    parent: parentNode.id,
+    children: [],
+    internal: {
+      type: _.camelCase(`${parentNode.internal.type}-${attributeName}-JSONNode`),
+      mediaType: `application/json`,
+      content: JSON.stringify(json),
+      contentDigest: parentNode.updatedAt || new Date().toISOString(),
+    },
+  };
+
+  return JSONNode;
+};
+
 const prepareRelationNode = (relation, ctx) => {
-  const {
-    contentTypesSchemas,
-    createNodeId,
-    parentNode,
-    parentNodeType,
-    attributeName,
-    targetSchemaUid,
-  } = ctx;
+  const { contentTypesSchemas, createNodeId, parentNode, targetSchemaUid } = ctx;
 
   const targetSchema = getContentTypeSchema(contentTypesSchemas, targetSchemaUid);
   const {
@@ -32,6 +46,26 @@ const prepareRelationNode = (relation, ctx) => {
   };
 
   return node;
+};
+
+const prepareTextNode = (text, ctx) => {
+  const { createNodeId, parentNode, attributeName } = ctx;
+  const textNodeId = createNodeId(`${parentNode.strapi_id}-${attributeName}-TextNode`);
+
+  const textNode = {
+    id: textNodeId,
+    parent: parentNode.id,
+    children: [],
+    [attributeName]: text,
+    internal: {
+      type: _.camelCase(`${parentNode.internal.type}-${attributeName}-TextNode`),
+      mediaType: `text/markdown`,
+      content: text,
+      contentDigest: parentNode.updatedAt || new Date().toISOString(),
+    },
+  };
+
+  return textNode;
 };
 
 exports.createNodes = (entity, nodeType, ctx, uid) => {
@@ -79,7 +113,7 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
       if (Array.isArray(value)) {
         const relationNodes = value.map((relation) => prepareRelationNode(relation, config));
         entity[`${attributeName}___NODE`] = relationNodes.map(({ id }) => id);
-        // entryNode.children = entryNode.children.concat(relationNodes.map(({ id }) => id));
+
         relationNodes.forEach((node) => {
           if (!getNode(node.id)) {
             nodes.push(createNode(node));
@@ -87,8 +121,6 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
         });
       } else {
         const relationNode = prepareRelationNode(value, config);
-
-        // entryNode.children = entryNode.children.concat([relationNode.id]);
 
         entity[`${attributeName}___NODE`] = relationNode.id;
 
@@ -100,48 +132,32 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
     }
 
     if (attribute?.type === 'richtext' && value) {
-      const textNodeId = createNodeId(`${entity.id}${attributeName}TextNode`);
-      const textNode = {
-        id: textNodeId,
-        parent: entryNode.id,
-        children: [],
-        [attributeName]: value,
-        internal: {
-          type: _.camelCase(`${nodeType}-${attributeName}-TextNode`),
-          mediaType: `text/markdown`,
-          content: value,
+      const textNode = prepareTextNode(value, {
+        createNodeId,
+        parentNode: entryNode,
+        attributeName,
+      });
 
-          contentDigest: entity.updatedAt,
-        },
-      };
+      entryNode.children = entryNode.children.concat([textNode.id]);
 
-      entryNode.children = entryNode.children.concat([textNodeId]);
-
-      entity[`${attributeName}___NODE`] = textNodeId;
+      entity[`${attributeName}___NODE`] = textNode.id;
       delete entity[attributeName];
 
-      if (!getNode()) nodes.push(createNode(textNode));
+      if (!getNode()) {
+        nodes.push(createNode(textNode));
+      }
     }
 
     if (attribute?.type === 'json' && value) {
-      const jsonNodeId = createNodeId(`${entity.id}${attributeName}JSONNode`);
+      const JSONNode = prepareJSONNode(value, {
+        createNodeId,
+        parentNode: entryNode,
+        attributeName,
+      });
 
-      const JSONNode = {
-        ...(_.isPlainObject(value) ? { ...value } : { content: value }),
-        id: jsonNodeId,
-        parent: entryNode.id,
-        children: [],
-        internal: {
-          type: _.camelCase(`${nodeType}-${attributeName}-JSONNode`),
-          mediaType: `application/json`,
-          content: JSON.stringify(value),
-          contentDigest: entity.updatedAt,
-        },
-      };
+      entryNode.children = entryNode.children.concat([JSONNode.id]);
 
-      entryNode.children = entryNode.children.concat([jsonNodeId]);
-
-      entity[`${attributeName}___NODE`] = jsonNodeId;
+      entity[`${attributeName}___NODE`] = JSONNode.id;
       delete entity[attributeName];
 
       nodes.push(createNode(JSONNode));
@@ -218,7 +234,6 @@ const extractImages = async (item, ctx, uid) => {
       const images = files.filter((fileNodeID) => fileNodeID);
 
       if (images && images.length > 0) {
-        console.log({ attributeName, uid });
         // item[attributeName] = isMultiple ? images : images[0];
         // Here 2 nodes will be resolved by the same GQL field
         // item[`${attributeName}___NODE`] = isMultiple ? images : images[0];
