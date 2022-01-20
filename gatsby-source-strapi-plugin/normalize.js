@@ -156,6 +156,7 @@ const extractImages = async (item, ctx, uid) => {
         // Here 2 nodes will be resolved by the same GQL field
         // item[`${attributeName}___NODE`] = isMultiple ? images : images[0];
 
+        // Foreign key
         item[attributeName][`localFile___NODE`] = isMultiple ? images : images[0];
         // Delete the other one
         // delete item[attributeName];

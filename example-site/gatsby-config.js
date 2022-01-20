@@ -10,14 +10,15 @@ const strapiConfig = {
       singularName: "article",
       queryParams: {
         // IMO we should make sure we always query the updatedAt field
+        // Rajouter l'updatedAt à la mano
         fields: ["title", "content", "updatedAt", "json"],
         populate: {
-          image: {
-            populate: "*",
-          },
-          images: {
-            populate: "*",
-          },
+          // Add the wildcard
+          image: "*",
+          // image: {
+          //   populate: "*",
+          // },
+          images: "*",
           author: {
             fields: ["name", "updatedAt"],
             populate: {
