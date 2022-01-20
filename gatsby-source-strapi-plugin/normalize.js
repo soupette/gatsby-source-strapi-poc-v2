@@ -79,7 +79,7 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
       if (Array.isArray(value)) {
         const relationNodes = value.map((relation) => prepareRelationNode(relation, config));
         entity[`${attributeName}___NODE`] = relationNodes.map(({ id }) => id);
-        entryNode.children = entryNode.children.concat(relationNodes.map(({ id }) => id));
+        // entryNode.children = entryNode.children.concat(relationNodes.map(({ id }) => id));
         relationNodes.forEach((node) => {
           if (!getNode(node.id)) {
             nodes.push(createNode(node));
@@ -88,11 +88,9 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
       } else {
         const relationNode = prepareRelationNode(value, config);
 
-        entryNode.children = entryNode.children.concat([relationNode.id]);
+        // entryNode.children = entryNode.children.concat([relationNode.id]);
 
         entity[`${attributeName}___NODE`] = relationNode.id;
-
-        console.log(getNode(relationNode.id));
 
         if (!getNode(relationNode.id)) {
           nodes.push(createNode(relationNode));
@@ -209,7 +207,7 @@ const extractImages = async (item, ctx, uid) => {
               }
             } catch (e) {
               // Ignore
-              console.log(e);
+              console.log('err', e);
             }
           }
 
@@ -220,6 +218,7 @@ const extractImages = async (item, ctx, uid) => {
       const images = files.filter((fileNodeID) => fileNodeID);
 
       if (images && images.length > 0) {
+        console.log({ attributeName, uid });
         // item[attributeName] = isMultiple ? images : images[0];
         // Here 2 nodes will be resolved by the same GQL field
         // item[`${attributeName}___NODE`] = isMultiple ? images : images[0];

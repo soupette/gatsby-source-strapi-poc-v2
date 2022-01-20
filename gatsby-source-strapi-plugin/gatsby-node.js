@@ -64,13 +64,13 @@ exports.sourceNodes = async (
   for (let i = 0; i < endpoints.length; i++) {
     const { singularName, uid } = endpoints[i];
 
-    await downloadMediaFiles(data[i], ctx, uid);
-
     const nodeType = `Strapi${capitalize(singularName)}`;
 
     for (let entity of data[i]) {
       await Promise.all(createNodes(entity, nodeType, ctx, uid));
     }
+
+    await downloadMediaFiles(data[i], ctx, uid);
   }
 
   return;

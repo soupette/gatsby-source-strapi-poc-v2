@@ -35,23 +35,23 @@ const strapiConfig = {
        * }
        */
     },
-    {
-      singularName: "company",
-      queryParams: {
-        populate: "*",
-      },
-    },
-    {
-      singularName: "author",
-      queryParams: {
-        populate: "*",
-        // populate: {
-        //   articles: {
-        //     populate: "*",
-        //   },
-        // },
-      },
-    },
+    // {
+    //   singularName: "company",
+    //   queryParams: {
+    //     populate: "*",
+    //   },
+    // },
+    // {
+    //   singularName: "author",
+    //   queryParams: {
+    //     populate: "*",
+    //     // populate: {
+    //     //   articles: {
+    //     //     populate: "*",
+    //     //   },
+    //     // },
+    //   },
+    // },
   ],
   singleTypes: [
     // {
