@@ -2,6 +2,38 @@ const { createRemoteFileNode } = require(`gatsby-source-filesystem`);
 const { getContentTypeSchema } = require('./helpers');
 const _ = require('lodash');
 
+const prepareRelationNode = (relation, ctx) => {
+  const {
+    contentTypesSchemas,
+    createNodeId,
+    parentNode,
+    parentNodeType,
+    attributeName,
+    targetSchemaUid,
+  } = ctx;
+
+  const targetSchema = getContentTypeSchema(contentTypesSchemas, targetSchemaUid);
+  const {
+    schema: { singularName },
+  } = targetSchema;
+
+  const relationNodeId = createNodeId(`Strapi${_.capitalize(singularName)}-${relation.id}`);
+  const node = {
+    ...relation,
+    id: relationNodeId,
+    strapi_id: relation.id,
+    parent: parentNode.id,
+    children: [],
+    internal: {
+      type: `Strapi${_.capitalize(singularName)}`,
+      content: JSON.stringify(relation),
+      contentDigest: relation.updatedAt || parentNode.updatedAt,
+    },
+  };
+
+  return node;
+};
+
 exports.createNodes = (entity, nodeType, ctx, uid) => {
   const nodes = [];
 
@@ -11,12 +43,14 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
     contentTypesSchemas,
     createNodeId,
     createContentDigest,
+    getNode,
     store,
     strapiConfig: { apiURL },
   } = ctx;
 
   let entryNode = {
     id: createNodeId(`${nodeType}-${entity.id}`),
+    strapi_id: entity.id,
     parent: null,
     children: [],
     internal: {
@@ -32,6 +66,40 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
     const value = entity[attributeName];
 
     const attribute = schema.schema.attributes[attributeName];
+
+    if (attribute?.type === 'relation' && value) {
+      const config = {
+        contentTypesSchemas,
+        createNodeId,
+        parentNode: entryNode,
+        parentNodeType: nodeType,
+        attributeName,
+        targetSchemaUid: attribute.target,
+      };
+      if (Array.isArray(value)) {
+        const relationNodes = value.map((relation) => prepareRelationNode(relation, config));
+        entity[`${attributeName}___NODE`] = relationNodes.map(({ id }) => id);
+        entryNode.children = entryNode.children.concat(relationNodes.map(({ id }) => id));
+        relationNodes.forEach((node) => {
+          if (!getNode(node.id)) {
+            nodes.push(createNode(node));
+          }
+        });
+      } else {
+        const relationNode = prepareRelationNode(value, config);
+
+        entryNode.children = entryNode.children.concat([relationNode.id]);
+
+        entity[`${attributeName}___NODE`] = relationNode.id;
+
+        console.log(getNode(relationNode.id));
+
+        if (!getNode(relationNode.id)) {
+          nodes.push(createNode(relationNode));
+        }
+      }
+      delete entity[attributeName];
+    }
 
     if (attribute?.type === 'richtext' && value) {
       const textNodeId = createNodeId(`${entity.id}${attributeName}TextNode`);
@@ -54,7 +122,7 @@ exports.createNodes = (entity, nodeType, ctx, uid) => {
       entity[`${attributeName}___NODE`] = textNodeId;
       delete entity[attributeName];
 
-      nodes.push(createNode(textNode));
+      if (!getNode()) nodes.push(createNode(textNode));
     }
 
     if (attribute?.type === 'json' && value) {

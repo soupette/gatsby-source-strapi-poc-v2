@@ -19,7 +19,17 @@ const { downloadMediaFiles, createNodes } = require('./normalize');
 exports.onPreInit = () => console.log('Loaded gatsby-source-strapi-plugin');
 
 exports.sourceNodes = async (
-  { actions, createContentDigest, createNodeId, reporter, getCache, store, cache },
+  {
+    actions,
+    createContentDigest,
+    createNodeId,
+    reporter,
+    getCache,
+    store,
+    cache,
+    getNodes,
+    getNode,
+  },
   pluginOptions,
 ) => {
   const contentTypesSchemas = await fetchStrapiContentTypes(pluginOptions);
@@ -32,9 +42,12 @@ exports.sourceNodes = async (
     createNodeId,
     reporter,
     getCache,
+    getNode,
     store,
     cache,
   };
+
+  const existingNodes = getNodes().filter((n) => n.internal.owner === `gatsby-source-strapi`);
 
   const endpoints = helpers.getEndpoints(pluginOptions, contentTypesSchemas);
 
