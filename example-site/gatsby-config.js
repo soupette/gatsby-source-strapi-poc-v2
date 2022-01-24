@@ -27,13 +27,6 @@ const strapiConfig = {
         //   },
         // },
       },
-      /**
-       * Default queryParams value
-       * {
-       *    pagination: { page: 1, pageSize: 250 },
-       *    populate: '*'
-       * }
-       */
     },
     {
       singularName: "company",
@@ -52,18 +45,21 @@ const strapiConfig = {
         // },
       },
     },
+    {
+      singularName: "post",
+      queryParams: {
+        // populate: "*",
+        populate: [
+          "medias",
+          "sections",
+          "sections.test",
+          "sections.sections_media",
+          "sections.test.test_medias",
+        ],
+      },
+    },
   ],
-  singleTypes: [
-    // {
-    //   singularName: "about",
-    //   /**
-    //    * Default queryParams value
-    //    * {
-    //    *  populate: '*',
-    //    * }
-    //    * */
-    // },
-  ],
+  singleTypes: [],
 }
 
 module.exports = {
@@ -76,7 +72,7 @@ module.exports = {
     "gatsby-transformer-sharp",
     // 'gatsby-plugin-react-helmet',
     {
-      resolve: require.resolve(`../gatsby-source-strapi-plugin`),
+      resolve: require.resolve(`../../gatsby-source-strapi`),
       options: strapiConfig,
     },
   ],

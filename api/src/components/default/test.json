@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_default_tests",
+  "info": {
+    "displayName": "test",
+    "icon": "air-freshener",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "test_content": {
+      "type": "richtext"
+    },
+    "test_medias": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_default_sections",
+  "info": {
+    "displayName": "sections",
+    "icon": "address-book",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "sections_title": {
+      "type": "string"
+    },
+    "sections_body": {
+      "type": "richtext"
+    },
+    "sections_media": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ]
+    },
+    "test": {
+      "type": "component",
+      "repeatable": false,
+      "component": "default.test"
+    }
+  }
+}
