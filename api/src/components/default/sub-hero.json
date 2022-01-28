@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_default_sub_heroes",
+  "info": {
+    "displayName": "sub_hero",
+    "icon": "allergies"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "sub_media": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "type": "media",
+      "multiple": true
+    }
+  }
+}

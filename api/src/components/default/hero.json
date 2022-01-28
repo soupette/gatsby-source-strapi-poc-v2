@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_default_heroes",
+  "info": {
+    "displayName": "hero",
+    "icon": "arrow-alt-circle-up",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ]
+    },
+    "sub_hero": {
+      "displayName": "sub_hero",
+      "type": "component",
+      "repeatable": true,
+      "component": "default.sub-hero"
+    }
+  }
+}

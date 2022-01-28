@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_default_compos",
+  "info": {
+    "displayName": "compo",
+    "icon": "ambulance",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "body": {
+      "type": "richtext"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tatas",
+  "info": {
+    "singularName": "tata",
+    "pluralName": "tatas",
+    "displayName": "tata",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "body": {
+      "type": "richtext"
+    }
+  }
+}

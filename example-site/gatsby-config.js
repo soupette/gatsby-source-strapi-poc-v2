@@ -2,67 +2,99 @@ require("dotenv").config({
   path: `.env`,
 })
 
+const contentTypes = [
+  {
+    singularName: "temp",
+    queryParams: {
+      populate: {
+        compo: {
+          populate: "*",
+        },
+        single_compo: {
+          populate: "*",
+        },
+        dz: {
+          populate: {
+            sub_hero: {
+              populate: "*",
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    singularName: "article",
+    queryParams: {
+      populate: "*",
+    },
+  },
+  // {
+  //   singularName: "company",
+  //   queryParams: {
+  //     populate: "*",
+  //   },
+  // },
+  // {
+  //   singularName: "author",
+  //   queryParams: {
+  //     populate: "*",
+  //   },
+  // },
+  {
+    singularName: "tata",
+  },
+
+  {
+    singularName: "post",
+    queryParams: {
+      populate: {
+        dz: {
+          populate: "*",
+        },
+        sections: {
+          populate: "*",
+        },
+      },
+    },
+  },
+]
+
+const complexStructures = [
+  {
+    singularName: "article",
+    queryParams: {
+      populate: {
+        image: "*",
+        images: "*",
+        author: {
+          populate: {
+            avatar: "*",
+            company: {
+              populate: {
+                image: "*",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+]
+
 const strapiConfig = {
   apiURL: process.env.STRAPI_API_URL,
   accessToken: process.env.STRAPI_TOKEN,
-  collectionTypes: [
-    {
-      singularName: "article",
-      queryParams: {
-        // Populate media and relations
-        // Make sure to not specify the fields key so the api always returns the updatedAt
-        populate: "*",
-        // populate: {
-        //   image: "*",
-        //   images: "*",
-        //   author: {
-        //     populate: {
-        //       avatar: "*",
-        //       company: {
-        //         populate: {
-        //           image: "*",
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
-      },
-    },
-    {
-      singularName: "company",
-      queryParams: {
-        populate: "*",
-      },
-    },
-    {
-      singularName: "author",
-      queryParams: {
-        populate: "*",
-        // populate: {
-        //   articles: {
-        //     populate: "*",
-        //   },
-        // },
-      },
-    },
-    {
-      singularName: "post",
-      queryParams: {
-        // populate: "*",
-        populate: [
-          "medias",
-          "sections",
-          "sections.test",
-          "sections.sections_media",
-          "sections.test.test_medias",
-        ],
-      },
-    },
-  ],
+  extractMarkdownImages: true, // Default false
+  collectionTypes: contentTypes,
+  // collectionTypes: complexStructures,
   singleTypes: [],
 }
 
 module.exports = {
+  flags: {
+    FAST_DEV: true,
+  },
   /* Your site config here */
   plugins: [
     `gatsby-transformer-json`,

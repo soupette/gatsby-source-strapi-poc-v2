@@ -30,6 +30,13 @@
       "type": "component",
       "repeatable": true,
       "component": "default.sections"
+    },
+    "dz": {
+      "type": "dynamiczone",
+      "components": [
+        "default.sections",
+        "default.test"
+      ]
     }
   }
 }
